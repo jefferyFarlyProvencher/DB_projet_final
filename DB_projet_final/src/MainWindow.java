@@ -1,9 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 
 /**
  * Created by Mihai on 2017-04-10.
@@ -63,9 +59,10 @@ public class MainWindow extends JFrame{
         submitBtn = new JButton("Submit Query");
         submitBtn.setPreferredSize(new Dimension(120, 30));
         submitBtn.addActionListener((e) -> {
+            String response;
             switch(optionsDropDown.getSelectedItem().toString()){
                 case Options.REQUEST_0:
-                    BD.execute(
+                    response = BD.execute(
                             "SELECT Prenom, Nom, Occupation, Type, Duree\n" +
                             "FROM Personne, (SELECT IDPers AS ID_P, Type, Duree\n" +
                             "\t\t\t\tFROM Vehicule, (SELECT IDPers, IDVehicule AS ID_V, Duree\n" +
@@ -79,7 +76,7 @@ public class MainWindow extends JFrame{
                             "WHERE IDPers = ID_P;");
                     break;
                 case Options.REQUEST_1:
-                    BD.execute(
+                    response = BD.execute(
                             "SELECT Prenom, Nom, Occupation, Type, Avg_Duree\n" +
                             "FROM Personne, (SELECT IDPers AS ID_P, Type, Avg_Duree\n" +
                             "\t\t\t\tFROM Vehicule, (SELECT IDPers, IDVehicule AS ID_V, ROUND(AVG(Duree),2) AS Avg_Duree\n" +
@@ -96,7 +93,7 @@ public class MainWindow extends JFrame{
                             "ORDER BY Prenom, Nom, Avg_Duree DESC;");
                     break;
                 case Options.REQUEST_2:
-                    BD.execute(
+                    response = BD.execute(
                             "SELECT Prenom, Nom, LieuArrivee AS Lieu\n" +
                             "FROM Personne, (SELECT IDObjet AS IDPers, LieuArrivee\n" +
                             "\t\t\t\tFROM Trajet\n" +
@@ -109,7 +106,7 @@ public class MainWindow extends JFrame{
                             "GROUP BY Prenom, Nom, Lieu;");
                     break;
                 case Options.REQUEST_3:
-                    BD.execute(
+                    response = BD.execute(
                             "SELECT NomLieu AS Destination, Latitude, Longitude, Frequence\n" +
                             "FROM Lieu, (SELECT LieuArrivee, COUNT(*) AS Frequence\n" +
                             "\t\t\tFROM Trajet\n" +
@@ -125,7 +122,7 @@ public class MainWindow extends JFrame{
                             "LIMIT 3;");
                     break;
                 case Options.REQUEST_4:
-                    BD.execute(
+                    response = BD.execute(
                             "SELECT Prenom, Nom, Occupation, LieuDepart, LieuArrivee, MAX(Frequence) AS NbParcours\n" +
                             "FROM (SELECT Prenom, Nom, Occupation, LieuDepart, LieuArrivee, COUNT(*) AS Frequence\n" +
                             "\t  FROM Trajet, Personne\n" +
@@ -135,7 +132,7 @@ public class MainWindow extends JFrame{
                             "ORDER BY Frequence DESC;");
                     break;
                 case Options.REQUEST_5:
-                    BD.execute(
+                    response = BD.execute(
                             "SELECT Prenom, Nom, NomAnimal, A1.LieuDepart AS Depart, A1.LieuArrivee AS Arrivee, A1.DateDepart AS Date, A1.HeureDepart AS Heure\n" +
                             "FROM (SELECT Prenom, Nom, LieuDepart, LieuArrivee, DateDepart, HeureDepart\n" +
                             "\t  FROM Trajet, (SELECT IDPers, Prenom, Nom\n" +
@@ -152,7 +149,7 @@ public class MainWindow extends JFrame{
                             "ORDER BY NomAnimal, Date, Heure;");
                     break;
                 case Options.REQUEST_6:
-                    BD.execute(
+                    response = BD.execute(
                             "SELECT NomEspece, ROUND(AVG(Duree),2) As Avg_Duree\n" +
                             "FROM Trajet, (SELECT IDAnimal, NomEspece\n" +
                             "\t\t\t  FROM Animal\n" +
@@ -161,7 +158,7 @@ public class MainWindow extends JFrame{
                             "GROUP BY NomEspece;");
                     break;
                 case Options.REQUEST_7:
-                    BD.execute(
+                    response = BD.execute(
                             "SELECT Type, ROUND(AVG(Duree),2) AS Avg_Duree\n" +
                             "FROM Trajet, (SELECT Type, IDAnimal\n" +
                             "\t\t\t  FROM ObjetMobile, Animal\n" +
@@ -178,7 +175,7 @@ public class MainWindow extends JFrame{
                             "\t\t\t  WHERE IDObjet = IDVehicule) WHERE IDObjet = IDVehicule;");
                     break;
                 case Options.REQUEST_8:
-                    BD.execute(
+                    response = BD.execute(
                             "SELECT LieuDepart, LieuArrivee, MIN(Duree), MAX(Duree), ROUND(AVG(Duree),0) AS Avg_Duree\n" +
                             "FROM Trajet\n" +
                             "WHERE IDObjet IN (SELECT IDPers FROM Personne)\n" +
@@ -186,7 +183,7 @@ public class MainWindow extends JFrame{
                             "ORDER BY Avg_Duree DESC;");
                     break;
                 default:
-                    BD.execute(
+                    response = BD.execute(
                             "SELECT DISTINCT LieuDepart, LieuArrivee\n" +
                             "FROM Trajet\n" +
                             "WHERE IDObjet IN (SELECT IDPers\n" +
@@ -194,6 +191,9 @@ public class MainWindow extends JFrame{
                             "\t\t\t\t  WHERE Occupation = 'Étudiant' OR Occupation = 'Professeur')\n" +
                             "ORDER BY LieuDepart, LieuArrivee;");
             }
+
+            // --
+            setTextAreaContent(response);
         });
 
         // -- TextView.
@@ -209,7 +209,7 @@ public class MainWindow extends JFrame{
      *
      * @param s : lalalala
      */
-    public void setTextAreaContent(String s){
+    private void setTextAreaContent(String s){
         textArea.setText(s);
     }
 }
