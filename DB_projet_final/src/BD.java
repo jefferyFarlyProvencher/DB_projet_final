@@ -7,7 +7,7 @@ public class BD {
      *
      * @param request :
      */
-    public static void execute(String request){
-
+    public static String execute(String request){
+        return "caca";
     }
 }
