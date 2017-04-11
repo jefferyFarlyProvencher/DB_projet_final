@@ -43,4 +43,9 @@ public class Main {
             System.exit(-1);
         }
     }
+
+    public static void selectQuery()
+    {
+
+    }
 }
