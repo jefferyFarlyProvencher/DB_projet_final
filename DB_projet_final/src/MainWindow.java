@@ -8,15 +8,15 @@ public class MainWindow extends JFrame{
 
     private static class Options {
         private static final String REQUEST_0 = "5 plus longs trajets de véhicules";
-        private static final String REQUEST_1 = "1";
-        private static final String REQUEST_2 = "2";
-        private static final String REQUEST_3 = "3";
-        private static final String REQUEST_4 = "4";
-        private static final String REQUEST_5 = "5";
-        private static final String REQUEST_6 = "6";
-        private static final String REQUEST_7 = "7";
-        private static final String REQUEST_8 = "8";
-        private static final String REQUEST_9 = "9";
+        private static final String REQUEST_1 = "Durées moyennes des trajets par type de véhicule pour les personnes possédant plus d'un véhicule";
+        private static final String REQUEST_2 = "Lieux visités par les propriétaires d'automobiles";
+        private static final String REQUEST_3 = "Coordonnées des 3 destinations les plus fréquentées par les maîtres de chiens";
+        private static final String REQUEST_4 = "Trajet le plus fréquent de chaque personne";
+        private static final String REQUEST_5 = "Trajets effectués par des maitres promenant leur animal";
+        private static final String REQUEST_6 = "Durée moyenne des trajets effectués par des animaux qui ont un maître";
+        private static final String REQUEST_7 = "Durée moyenne des trajets selon le type d'objet mobile";
+        private static final String REQUEST_8 = "Liste des trajets effectués par des personnes, triée par durée moyenne des trajets";
+        private static final String REQUEST_9 = "Liste des trajets effectués par des étudiants et des professeurs";
     }
 
     private final String[] options = {
@@ -53,7 +53,7 @@ public class MainWindow extends JFrame{
         // -- Drop Down.
         optionsDropDown = new JComboBox(options);
         optionsDropDown.setSelectedIndex(0);
-        optionsDropDown.setPreferredSize(new Dimension(320, 30));
+        optionsDropDown.setPreferredSize(new Dimension(620, 30));
 
         // -- Submit Btn.
         submitBtn = new JButton("Submit Query");
