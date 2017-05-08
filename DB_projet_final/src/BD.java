@@ -17,7 +17,7 @@ public class BD {
         ResultSet resultSet = null;
 
         try {
-            connection = DriverManager.getConnection("jdbc:oracle:thin:@oracle.iro.umontreal.ca:1521:orcl","farlyprj", "prjp112F" );
+            connection = DriverManager.getConnection("jdbc:oracle:thin:@oracle.iro.umontreal.ca:1521:orcl","deladurf", "urfp099D" );
         }catch (SQLException e)
         {
             System.out.println("Connection ERROR");
