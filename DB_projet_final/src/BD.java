@@ -1,5 +1,8 @@
 import java.sql.*;
 
+import javax.swing.*;
+import java.sql.*;
+
 /**
  * Created by Mihai on 2017-04-10.
  */
@@ -15,9 +18,10 @@ public class BD {
         //Set
         Connection connection = null;
         ResultSet resultSet = null;
+        String response = "";
 
         try {
-            connection = DriverManager.getConnection("jdbc:oracle:thin:@oracle.iro.umontreal.ca:1521:orcl","deladurf", "urfp099D" );
+            connection = DriverManager.getConnection("jdbc:oracle:thin:@oracle.iro.umontreal.ca:1521:orcl","farlyprj", "prjp112F" );
         }catch (SQLException e)
         {
             System.out.println("Connection ERROR");
@@ -45,6 +49,8 @@ public class BD {
                 if(st != null)
                 {
                     try {
+                        response = formatResultSetIntoString(resultSet);
+                        System.out.print(response);
                         st.close();
                     } catch (SQLException e)
                     {
@@ -64,7 +70,7 @@ public class BD {
         }
 
 
-        return formatResultSetIntoString(resultSet);
+        return response;
     }
 
     private static String formatResultSetIntoString(ResultSet resultSet)
@@ -74,6 +80,7 @@ public class BD {
             while(resultSet.next())
             {
                 formatedString += "- " + resultSet.getString(1) + "\n";
+                //System.out.println(formatedString);
             }
         }catch (SQLException e)
         {

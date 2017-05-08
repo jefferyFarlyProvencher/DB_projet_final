@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.table.JTableHeader;
 import java.awt.*;
 
 /**
@@ -29,6 +30,7 @@ public class MainWindow extends JFrame{
     private JButton submitBtn;
     private JComboBox optionsDropDown;
     private JTextArea textArea;
+    private JTable jTable;
 
     public MainWindow(){
         init();
@@ -62,58 +64,26 @@ public class MainWindow extends JFrame{
             String response;
             switch(optionsDropDown.getSelectedItem().toString()){
                 case Options.REQUEST_0:
-                    response = BD.execute("select LieuDepart,LieuArrivee, Duree from  trajet,vehicule_ where idobjettrajet = idvehicule order by duree desc OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY;");
+                    response = BD.execute("SELECT LieuDepart,LieuArrivee, Duree FROM `trajet`, `vehicule_` WHERE idobjettrajet = idvehicule ORDER BY duree DESC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY");
                     break;
+
                 case Options.REQUEST_1:
-                    response = BD.execute("select IDPers, typeof, avg(duree) from trajet,vehicule_, Proprietaire_ where idvehiculep in (select idvehiculep from Proprietaire_ where idpers in (select IDPers from Proprietaire_ group by IDPers having count(*) > 1)) and idobjettrajet=idvehiculep and idvehicule=idvehiculep  group by IDPers,typeof;\n");
+                    response = BD.execute("select IDPers, typeof, avg(duree) from trajet,vehicule_, Proprietaire_ where idvehiculep in (select idvehiculep from Proprietaire_ where idpers in (select IDPers from Proprietaire_ group by IDPers having count(*) > 1)) and idobjettrajet=idvehiculep and idvehicule=idvehiculep  group by IDPers,typeof");
                     break;
 
                 case Options.REQUEST_2:
-                    response = BD.execute(
-                            "SELECT Prenom, Nom, LieuArrivee AS Lieu " +
-                            "FROM Personne, SELECT IDObjet AS IDPers, LieuArrivee " +
-                            "FROM Trajet " +
-                            "WHERE IDObjet IN SELECT IDPers " +
-                            "FROM Proprietaire " +
-                            "WHERE IDVehicule IN SELECT IDVehicule " +
-                            "FROM Vehicule " +
-                            "WHERE Type = 'Automobile' AS B1 " +
-                            "WHERE Personne.IDPers = B1.IDPers " +
-                            "GROUP BY Prenom, Nom, Lieu;");
+                    response = BD.execute("select DISTINCT LieuArrivee from trajet where idobjettrajet in (select idpers from Proprietaire_ where idvehiculep in (select idvehicule from vehicule_ where typeof='Automobile'))");
                     break;
+
                 case Options.REQUEST_3:
-
-                    //not working here : expression absente
-
-                    response = BD.execute(
-                            "SELECT NomLieu AS Destination, Latitude, Longitude, Frequence" +
-                            "FROM Lieu, SELECT LieuArrivee, COUNT(*) AS Frequence " +
-                            "FROM Trajet " +
-                            "WHERE IDObjet IN SELECT IDPers " +
-                            "FROM Maitre " +
-                            "WHERE IDAnimal IN SELECT IDAnimal " +
-                            "FROM Animal " +
-                            "WHERE NomEspece = 'Chien' " +
-                            "GROUP BY LieuArrivee " +
-                            "WHERE NomLieu = LieuArrivee " +
-                            "GROUP BY Destination " +
-                            "ORDER BY Frequence DESC " +
-                            "LIMIT 3;");
+                    response = BD.execute("select distinct LieuDepart, LieuArrivee from trajet where idobjettrajet in (select idpers from Maitre_ where idanimal in (select idanimal from Animal_ where NomEspece='Chien'))");
                     break;
+
                 case Options.REQUEST_4:
-                    response = BD.execute(
-                            "SELECT Prenom, Nom, Occupation, LieuDepart, LieuArrivee, MAX(Frequence) AS NbParcours " +
-                            "FROM SELECT Prenom, Nom, Occupation, LieuDepart, LieuArrivee, COUNT(*) AS Frequence " +
-                            "FROM Trajet, Personne " +
-                            "WHERE IDObjet = IDPers " +
-                            "GROUP BY IDPers, LieuDepart, LieuArrivee " +
-                            "GROUP BY Nom, Prenom " +
-                            "ORDER BY Frequence DESC;");
+                    response = BD.execute("");
                     break;
+
                 case Options.REQUEST_5:
-
-                    //HERE not working: missing FROM where a FROM is expected
-
                     response = BD.execute(
                             "SELECT Prenom, Nom, NomAnimal, A1.LieuDepart AS Depart, A1.LieuArrivee AS Arrivee, A1.DateDepart AS Date, A1.HeureDepart AS Heure " +
                             "FROM SELECT Prenom, Nom, LieuDepart, LieuArrivee, DateDepart, HeureDepart " +
@@ -132,52 +102,21 @@ public class MainWindow extends JFrame{
                     break;
                 case Options.REQUEST_6:
                     response = BD.execute(
-                            "SELECT NomEspece, ROUND(AVG(Duree),2) As Avg_Duree " +
-                            "FROM Trajet, SELECT IDAnimal, NomEspece " +
-                            "FROM Animal " +
-                            "WHERE IDAnimal IN SELECT IDAnimal FROM Maitre " +
-                            "WHERE IDObjet = IDAnimal " +
-                            "GROUP BY NomEspece;");
+                            "select IDAnimal, avg(duree) from animal_,trajet where IDAnimal in (select idanimal from Maitre_) and idobjettrajet=idanimal group by idanimal");
                     break;
                 case Options.REQUEST_7:
                     response = BD.execute(
-                            "SELECT Type, ROUND(AVG(Duree),2) AS Avg_Duree " +
-                            "FROM Trajet, SELECT Type, IDAnimal " +
-                            "FROM ObjetMobile, Animal " +
-                            "WHERE IDObjet = IDAnimal WHERE IDObjet = IDAnimal " +
-                            "UNION " +
-                            "SELECT Type, ROUND(AVG(Duree),2) AS Avg_Duree " +
-                            "FROM Trajet, SELECT Type, IDPers " +
-                            "FROM ObjetMobile, Personne " +
-                            "WHERE IDObjet = IDPers WHERE IDObjet = IDPers " +
-                            "UNION " +
-                            "SELECT Type, ROUND(AVG(Duree),2) AS Avg_Duree " +
-                            "FROM Trajet, (SELECT ObjetMobile.Type, IDVehicule " +
-                            "FROM ObjetMobile, Vehicule " +
-                            "WHERE IDObjet = IDVehicule) WHERE IDObjet = IDVehicule;");
+                            "select typeof, avg(duree) from trajet,ObjetMobile where idobjettrajet=idobjet group by typeof");
                     break;
                 case Options.REQUEST_8:
 
-                    //not working expression absente
-
                     response = BD.execute(
-                            "SELECT LieuDepart, LieuArrivee, MIN(Duree), MAX(Duree), ROUND(AVG(Duree),0) AS Avg_Duree " +
-                            "FROM Trajet " +
-                            "WHERE IDObjet IN SELECT IDPers FROM Personne " +
-                            "GROUP BY LieuDepart, LieuArrivee " +
-                            "ORDER BY Avg_Duree DESC;");
+                            "select distinct LieuDepart, LieuArrivee, avg(duree) from trajet,Personne_ where idobjettrajet=IDPers group by LieuDepart, LieuArrivee order by avg(duree) desc");
                     break;
                 default:
 
-                    //not working expression absente
-
                     response = BD.execute(
-                            "SELECT DISTINCT LieuDepart, LieuArrivee " +
-                            "FROM Trajet " +
-                            "WHERE IDObjet IN SELECT IDPers " +
-                            "FROM Personne " +
-                            "WHERE Occupation = 'Étudiant' OR Occupation = 'Professeur' " +
-                            "ORDER BY LieuDepart, LieuArrivee;");
+                            "select distinct LieuDepart, LieuArrivee from trajet where idobjettrajet in (select idpers from Personne_ where Occupation='Étudiant' or Occupation = 'Professeur')");
             }
 
             // --
