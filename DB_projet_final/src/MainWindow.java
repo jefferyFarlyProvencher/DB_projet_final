@@ -62,36 +62,12 @@ public class MainWindow extends JFrame{
             String response;
             switch(optionsDropDown.getSelectedItem().toString()){
                 case Options.REQUEST_0:
-                    response = BD.execute(
-                            "SELECT Prenom, Nom, Occupation, Type, Duree " +
-                            "FROM Personne, SELECT IDPers AS ID_P, Type, Duree " +
-                            "FROM Vehicule, SELECT IDPers, IDVehicule AS ID_V, Duree " +
-                            "FROM Proprietaire, SELECT IDObjet, Duree " +
-                            "FROM Trajet " +
-                            "WHERE IDObjet IN SELECT IDVehicule FROM Vehicule " +
-                            "ORDER BY Duree DESC " +
-                            "LIMIT 5 " +
-                            "WHERE IDObjet = IDVehicule " +
-                            "WHERE IDVehicule = ID_V " +
-                            "WHERE IDPers = ID_P;");
+                    response = BD.execute("select LieuDepart,LieuArrivee, Duree from  trajet,vehicule_ where idobjettrajet = idvehicule order by duree desc OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY;");
                     break;
                 case Options.REQUEST_1:
-                    response = BD.execute(
-                            "SELECT Prenom, Nom, Occupation, Type, Avg_Duree " +
-                            "FROM Personne, SELECT IDPers AS ID_P, Type, Avg_Duree " +
-                            "FROM Vehicule, SELECT IDPers, IDVehicule AS ID_V, ROUND(AVG(Duree),2) AS Avg_Duree" +
-                            "FROM Trajet, SELECT IDPers, IDVehicule " +
-                            "FROM Proprietaire, SELECT IDPers AS ID_P, COUNT(*) AS NbVehicules " +
-                            "FROM Proprietaire " +
-                            "GROUP BY IDPers " +
-                            "HAVING NbVehicules > 1 " +
-                            "WHERE IDPers = ID_P " +
-                            "WHERE IDObjet = IDVehicule " +
-                            "GROUP BY IDVehicule " +
-                            "WHERE IDVehicule = ID_V " +
-                            "WHERE IDPers = ID_P " +
-                            "ORDER BY Prenom, Nom, Avg_Duree DESC;");
+                    response = BD.execute("select IDPers, typeof, avg(duree) from trajet,vehicule_, Proprietaire_ where idvehiculep in (select idvehiculep from Proprietaire_ where idpers in (select IDPers from Proprietaire_ group by IDPers having count(*) > 1)) and idobjettrajet=idvehiculep and idvehicule=idvehiculep  group by IDPers,typeof;\n");
                     break;
+
                 case Options.REQUEST_2:
                     response = BD.execute(
                             "SELECT Prenom, Nom, LieuArrivee AS Lieu " +

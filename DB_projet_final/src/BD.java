@@ -36,6 +36,7 @@ public class BD {
             }
 
             catch (SQLException e){
+                System.out.print("FUCK!");
                 e.printStackTrace();
             }
 
