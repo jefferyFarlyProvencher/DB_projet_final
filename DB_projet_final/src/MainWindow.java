@@ -9,7 +9,7 @@ public class MainWindow extends JFrame{
 
     private static class Options {
         private static final String REQUEST_0 = "5 plus longs trajets de véhicules";
-        private static final String REQUEST_1 = "Durées moyennes des trajets par type de véhicule pour les personnes possédant plus d'un véhicule";
+        private static final String REQUEST_1 = "Durees moyennes des trajets par type de véhi pour les pers ayant 1 véhicule et plus";
         private static final String REQUEST_2 = "Lieux visités par les propriétaires d'automobiles";
         private static final String REQUEST_3 = "Coordonnées des 3 destinations les plus fréquentées par les maîtres de chiens";
         private static final String REQUEST_4 = "Trajet le plus fréquent de chaque personne";
@@ -64,7 +64,7 @@ public class MainWindow extends JFrame{
             String response;
             switch(optionsDropDown.getSelectedItem().toString()){
                 case Options.REQUEST_0:
-                    response = BD.execute("SELECT LieuDepart,LieuArrivee, Duree FROM `trajet`, `vehicule_` WHERE idobjettrajet = idvehicule ORDER BY duree DESC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY");
+                    response = BD.execute("SELECT LieuDepart,LieuArrivee, Duree FROM trajet, vehicule_ WHERE idobjettrajet = idvehicule ORDER BY duree DESC OFFSET 0 ROWS FETCH NEXT 5 ROWS ONLY");
                     break;
 
                 case Options.REQUEST_1:
@@ -76,29 +76,38 @@ public class MainWindow extends JFrame{
                     break;
 
                 case Options.REQUEST_3:
-                    response = BD.execute("select distinct LieuDepart, LieuArrivee from trajet where idobjettrajet in (select idpers from Maitre_ where idanimal in (select idanimal from Animal_ where NomEspece='Chien'))");
+                    response = BD.execute("SELECT NomLieu AS Destination, Latitude, Longitude, Frequence\n" +
+                            "FROM Lieu_, (SELECT LieuArrivee, COUNT(*) AS Frequence\n" +
+                            "\t\t\t FROM Trajet\n" +
+                            "\t\t\t WHERE IDObjetTrajet IN (SELECT IDPers\n" +
+                            "\t\t\t\t\t\t\t\t\t FROM Maitre_\n" +
+                            "\t\t\t\t\t\t\t\t\t WHERE IDAnimal IN (SELECT IDAnimal\n" +
+                            "\t\t\t\t\t\t\t\t\t\t\t\t\t\tFROM Animal_\n" +
+                            "\t\t\t\t\t\t\t\t\t\t\t\t\t\tWHERE NomEspece = 'Chien'))\n" +
+                            "\t\t\t GROUP BY LieuArrivee)\n" +
+                            "WHERE NomLieu = LieuArrivee\n" +
+                            "ORDER BY Frequence DESC\n" +
+                            "FETCH FIRST 3 ROWS ONLY");
                     break;
 
                 case Options.REQUEST_4:
-                    response = BD.execute("");
+                    response = BD.execute("WITH TRAJETS AS (SELECT IDPers, LieuDepart, LieuArrivee, COUNT(*) AS Freq\n" +
+                            "                 FROM Trajet, Personne_\n" +
+                            "                 WHERE IDObjetTrajet = IDPers\n" +
+                            "                 GROUP BY IDPers, LieuDepart, LieuArrivee)\n" +
+                            "SELECT Prenom, Nom, Occupation, LieuDepart, LieuArrivee, NbParcours\n" +
+                            "FROM Personne_, (SELECT TRAJETS.IDPers AS IDPers_, LieuDepart, LieuArrivee, NbParcours\n" +
+                            "                 FROM TRAJETS, (SELECT IDPers, MAX(Freq) AS NbParcours\n" +
+                            "                                FROM TRAJETS\n" +
+                            "                                GROUP BY IDPers) HIGHEST_FREQ\n" +
+                            "                 WHERE TRAJETS.IDPers = HIGHEST_FREQ.IDPers AND Freq = NbParcours)\n" +
+                            "WHERE Personne_.IDPers = IDPers_\n" +
+                            "ORDER BY NbParcours DESC, Prenom, Nom, LieuDepart, LieuArrivee");
                     break;
 
                 case Options.REQUEST_5:
                     response = BD.execute(
-                            "SELECT Prenom, Nom, NomAnimal, A1.LieuDepart AS Depart, A1.LieuArrivee AS Arrivee, A1.DateDepart AS Date, A1.HeureDepart AS Heure " +
-                            "FROM SELECT Prenom, Nom, LieuDepart, LieuArrivee, DateDepart, HeureDepart " +
-                            "FROM Trajet, SELECT IDPers, Prenom, Nom " +
-                            "FROM Personne " +
-                            "WHERE IDPers IN SELECT IDPers FROM Maitre " +
-                            "WHERE IDPers = IDObjet AS A1, " +
-                            "SELECT Nom AS NomAnimal, LieuDepart, LieuArrivee, DateDepart, HeureDepart " +
-                            "FROM Trajet, SELECT IDAnimal, Nom " +
-                            "FROM Animal " +
-                            "WHERE IDAnimal IN SELECT IDAnimal FROM Maitre " +
-                            "WHERE IDAnimal = IDObjet AS A2 " +
-                            "WHERE A1.LieuDepart = A2.LieuDepart AND A1.LieuArrivee = A2.LieuArrivee " +
-                            "AND A1.DateDepart = A2.DateDepart AND A1.HeureDepart = A2.HeureDepart " +
-                            "ORDER BY NomAnimal, Date, Heure;");
+                            "select distinct LieuDepart, LieuArrivee from trajet where idobjettrajet in(select idpers from Maitre_ where idanimal in(select idanimal from Animal_ where NomEspece = 'Chien'))\n");
                     break;
                 case Options.REQUEST_6:
                     response = BD.execute(

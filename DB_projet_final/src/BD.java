@@ -37,10 +37,11 @@ public class BD {
             try{
                 st = connection.createStatement();
                 resultSet = st.executeQuery(request);
+                response = formatResultSetIntoString(resultSet);
             }
 
             catch (SQLException e){
-                System.out.print("FUCK!");
+                System.out.print("PHOQUE!");
                 e.printStackTrace();
             }
 
@@ -49,7 +50,7 @@ public class BD {
                 if(st != null)
                 {
                     try {
-                        response = formatResultSetIntoString(resultSet);
+
                         System.out.print(response);
                         st.close();
                     } catch (SQLException e)
@@ -76,16 +77,25 @@ public class BD {
     private static String formatResultSetIntoString(ResultSet resultSet)
     {
         String formatedString = "";
-        try{
-            while(resultSet.next())
-            {
-                formatedString += "- " + resultSet.getString(1) + "\n";
-                //System.out.println(formatedString);
-            }
-        }catch (SQLException e)
+
+        if(resultSet == null)
         {
-            System.out.println("ResultSet Error in format");
-            e.printStackTrace();
+            System.out.println("NULL RESULT SET IS NULL");
+        }
+
+        else {
+
+
+
+            try {
+                while (resultSet.next()) {
+                    formatedString += resultSet.getString(1) + "\n";
+                    //System.out.println(formatedString);
+                }
+            } catch (SQLException e) {
+                System.out.println("ResultSet Error in format");
+                e.printStackTrace();
+            }
         }
 
         return formatedString;
