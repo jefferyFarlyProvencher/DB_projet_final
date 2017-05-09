@@ -291,7 +291,7 @@ FROM Lieu_, (SELECT LieuArrivee, COUNT(*) AS Frequence
 									 WHERE IDAnimal IN (SELECT IDAnimal
 														FROM Animal_
 														WHERE NomEspece = 'Chien'))
-			 GROUP BY LieuArrivee)
+			 GROUP BY LieuArrivee);
 WHERE NomLieu = LieuArrivee
 ORDER BY Frequence DESC
 FETCH FIRST 3 ROWS ONLY;
