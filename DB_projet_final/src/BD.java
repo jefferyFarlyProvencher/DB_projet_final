@@ -3,9 +3,6 @@ import java.sql.*;
 import javax.swing.*;
 import java.sql.*;
 
-/**
- * Created by Mihai on 2017-04-10.
- */
 public class BD {
 
     /**
@@ -84,8 +81,6 @@ public class BD {
         }
 
         else {
-
-
 
             try {
                 while (resultSet.next()) {

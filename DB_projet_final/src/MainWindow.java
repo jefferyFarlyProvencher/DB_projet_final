@@ -3,9 +3,6 @@ import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.util.ArrayList;
 
-/**
- * Created by Mihai on 2017-04-10.
- */
 public class MainWindow extends JFrame{
 
     private static class Options {
@@ -62,7 +59,7 @@ public class MainWindow extends JFrame{
         optionsDropDown.setPreferredSize(new Dimension(700, 30));
 
         // -- Submit Btn.
-        submitBtn = new JButton("Submit Query");
+        submitBtn = new JButton("Submit");
         submitBtn.setPreferredSize(new Dimension(120, 30));
         submitBtn.addActionListener((e) -> {
 
